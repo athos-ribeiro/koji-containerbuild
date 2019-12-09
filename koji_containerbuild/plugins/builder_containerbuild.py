@@ -28,12 +28,13 @@ import sys
 import logging
 import time
 import traceback
-import dockerfile_parse
 import signal
 import shutil
-import jsonschema
 from distutils.version import LooseVersion
 
+import dockerfile_parse
+import json
+import jsonschema
 import koji
 
 # this is present because in some versions of koji, callback functions assume koji.plugin is
@@ -93,6 +94,7 @@ LABEL_NAME_MAP = {
 
 METADATA_TAG = "_metadata_"
 
+ANNOTATIONS_FILENAME = 'build_annotations.json'
 
 class ContainerError(koji.GenericError):
     """Raised when container creation fails"""
@@ -451,7 +453,18 @@ class BaseContainerTask(BaseTaskHandler):
         elif pkg_cfg['blocked']:
             raise koji.BuildError("package (container)  %s is blocked for tag %s" % (name, target_info['dest_tag_name']))
 
+    def write_build_annotations(self, build_response, dest_dir):
+        annotations = build_response.get_annotations()
+        whitelist = annotations.get('koji_task_annotations_whitelist', [])
+        task_annotations = {k: v for k, v in annotations.items() if k in whitelist}
+        if task_annotations:
+            annotations_file = os.path.join(dest_dir, ANNOTATIONS_FILENAME)
+            with open(annotations_file, 'w') as f:
+                json.dump(task_annotations, f, sort_keys=True, indent=4)
+
     def handle_build_response(self, build_response, arch=None):
+        self.write_build_annotations(build_response, self.resultdir())
+
         build_id = build_response.get_build_name()
         self.logger.debug("OSBS build id: %r", build_id)
 
