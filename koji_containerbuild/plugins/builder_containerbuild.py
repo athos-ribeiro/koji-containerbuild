@@ -456,11 +456,10 @@ class BaseContainerTask(BaseTaskHandler):
     def write_build_annotations(self, build_response, dest_dir):
         annotations = build_response.get_annotations()
         annotations_file = os.path.join(dest_dir, ANNOTATIONS_FILENAME)
-        with open(annotations_file, 'w') as f:
-            json.dump(annotations, f, sort_keys=True, indent=4)
-
-            uploadpath = self.getUploadPath()
-            incremental_upload(self.session, ANNOTATIONS_FILENAME, f, uploadpath, logger=self.logger)
+        f = StringIO()
+        json.dump(annotations, f, sort_keys=True, indent=4)
+        uploadpath = self.getUploadPath()
+        incremental_upload(self.session, ANNOTATIONS_FILENAME, f, uploadpath, logger=self.logger)
 
     def handle_build_response(self, build_response, arch=None):
         build_id = build_response.get_build_name()
