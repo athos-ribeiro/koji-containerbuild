@@ -502,6 +502,7 @@ class BaseContainerTask(BaseTaskHandler):
             os._exit(0)
 
         response = self.osbs().wait_for_build_to_finish(build_id)
+        self.write_build_annotations(response, self.resultdir())
 
         self.logger.debug("OSBS build finished with status: %s. Build "
                           "response: %s.", response.status,
@@ -532,7 +533,6 @@ class BaseContainerTask(BaseTaskHandler):
         koji_build_id = None
         if response.is_succeeded():
             koji_build_id = self._get_koji_build_id(response)
-            self.write_build_annotations(response, self.resultdir())
 
         self.logger.info("Koji content generator build ID: %s", koji_build_id)
 
