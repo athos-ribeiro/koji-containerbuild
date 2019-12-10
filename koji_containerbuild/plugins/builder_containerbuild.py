@@ -455,12 +455,9 @@ class BaseContainerTask(BaseTaskHandler):
 
     def write_build_annotations(self, build_response, dest_dir):
         annotations = build_response.get_annotations()
-        whitelist = annotations.get('koji_task_annotations_whitelist', [])
-        task_annotations = {k: v for k, v in annotations.items() if k in whitelist}
-        if task_annotations:
-            annotations_file = os.path.join(dest_dir, ANNOTATIONS_FILENAME)
-            with open(annotations_file, 'w') as f:
-                json.dump(task_annotations, f, sort_keys=True, indent=4)
+        annotations_file = os.path.join(dest_dir, ANNOTATIONS_FILENAME)
+        with open(annotations_file, 'w') as f:
+            json.dump(annotations, f, sort_keys=True, indent=4)
 
     def handle_build_response(self, build_response, arch=None):
         self.write_build_annotations(build_response, self.resultdir())
