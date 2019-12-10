@@ -36,6 +36,7 @@ import dockerfile_parse
 import json
 import jsonschema
 import koji
+from six import StringIO
 
 # this is present because in some versions of koji, callback functions assume koji.plugin is
 # imported
