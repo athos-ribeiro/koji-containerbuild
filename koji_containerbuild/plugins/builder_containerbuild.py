@@ -456,14 +456,11 @@ class BaseContainerTask(BaseTaskHandler):
 
     def upload_build_annotations(self, build_response):
         annotations = build_response.get_annotations() or {}
-        whitelist = annotations.get('koji_task_annotations_whitelist', [])
-        task_annotations = {k: v for k, v in annotations.items() if k in whitelist}
-        if task_annotations:
-            f = StringIO()
-            json.dump(task_annotations, f, sort_keys=True, indent=4)
-            f.seek(0)
-            incremental_upload(self.session, ANNOTATIONS_FILENAME, f, self.getUploadPath(),
-                               logger=self.logger)
+        f = StringIO()
+        json.dump(annotations, f, sort_keys=True, indent=4)
+        f.seek(0)
+        incremental_upload(self.session, ANNOTATIONS_FILENAME, f, self.getUploadPath(),
+                           logger=self.logger)
 
     def handle_build_response(self, build_response, arch=None):
         build_id = build_response.get_build_name()
