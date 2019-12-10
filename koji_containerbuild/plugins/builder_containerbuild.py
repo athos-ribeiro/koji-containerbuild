@@ -460,6 +460,7 @@ class BaseContainerTask(BaseTaskHandler):
         f = StringIO()
         json.dump(annotations, f, sort_keys=True, indent=4)
         uploadpath = self.getUploadPath()
+        f.seek(0)
         incremental_upload(self.session, ANNOTATIONS_FILENAME, f, uploadpath, logger=self.logger)
 
     def handle_build_response(self, build_response, arch=None):
