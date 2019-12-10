@@ -459,9 +459,10 @@ class BaseContainerTask(BaseTaskHandler):
         with open(annotations_file, 'w') as f:
             json.dump(annotations, f, sort_keys=True, indent=4)
 
-    def handle_build_response(self, build_response, arch=None):
-        self.write_build_annotations(build_response, self.resultdir())
+            uploadpath = self.getUploadPath()
+            incremental_upload(self.session, ANNOTATIONS_FILENAME, f, uploadpath, logger=self.logger)
 
+    def handle_build_response(self, build_response, arch=None):
         build_id = build_response.get_build_name()
         self.logger.debug("OSBS build id: %r", build_id)
 
@@ -531,6 +532,7 @@ class BaseContainerTask(BaseTaskHandler):
         koji_build_id = None
         if response.is_succeeded():
             koji_build_id = self._get_koji_build_id(response)
+            self.write_build_annotations(response, self.resultdir())
 
         self.logger.info("Koji content generator build ID: %s", koji_build_id)
 
